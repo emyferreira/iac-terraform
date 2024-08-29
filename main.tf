@@ -13,12 +13,12 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_instance" "ec2-iac-aula2" { // bloco de armazenamento (disco)
+resource "aws_instance" "ec2-iac-pri-exercicio1" {
   ami = "ami-066784287e358dad1"
   instance_type = "t2.micro"
 
   tags = {
-    Name = "ec2-iac-aula2"
+    Name = "ec2-iac-pri-exercicio1"
   }
 
   ebs_block_device {
@@ -27,71 +27,57 @@ resource "aws_instance" "ec2-iac-aula2" { // bloco de armazenamento (disco)
     volume_type = "gp3"
   }
 
-  security_groups = [aws_security_group.sg_aula_iac.name, "default"] // associando aos grupos de segurança
-  // normalmente juntamos mais de um grupo de segurança, nesse caso o default tem menor preferência
+  key_name = "aula_iac"
+
+  subnet_id = aws_subnet.subnet_pri_exercicio1.id
+
+  associate_public_ip_address = false
+}
+
+resource "aws_instance" "ec2-iac-pub-exercicio1" {
+  ami = "ami-066784287e358dad1"
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "ec2-iac-pub-exercicio1"
+  }
+
+  ebs_block_device {
+    device_name = "/dev/sda1"
+    volume_size = 30
+    volume_type = "gp3"
+  }
 
   key_name = "aula_iac"
 
-  // caso queira indicar uma subnet da aWS
-  // subnet_id = "subnet-04d21f6c9df0a7836" // subnet padrão da região us-east-1
+  subnet_id = aws_subnet.subnet_pub_exercicio1.id
 
-  // caso queira indicar uma subnet criada em arquivos .tf (usar esse no projeto)
-  subnet_id = aws_subnet.minha_subrede.is
+  associate_public_ip_address = true
 }
 
-variable "porta_http" {
-  description = "porta http"
-  default = 80
-  type = number
-}
+resource "aws_subnet" "subnet_pri_exercicio1" {
+  vpc_id = "vpc-05494f4a277289424"
+  cidr_block = "10.0.2.0/24"
 
-variable "porta_https" {
-  description = "porta https"
-  default = 443
-  type = number
-}
-
-
-resource "aws_security_group" "sg_aula_iac" {
-  name = "sg_aula_iac"
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-    ingress {
-    from_port   = var.porta_http
-    to_port     = var.porta_http
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  } // não sei se essa parte de ingress e egress ta certa
-
-  egress {
-    from_port   = var.porta_http
-    to_port     = var.porta_http
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-    ingress {
-    from_port   = var.porta_https
-    to_port     = var.porta_https
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = var.porta_https
-    to_port     = var.porta_https
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  tags = {
+    Name: "subnet_pri",
   }
 }
 
-resource "aws_subnet" "minha_subrede" {
-  vpc_id = "id da VPC"
-  cidr_block = "10.10.10.0/24"
+resource "aws_subnet" "subnet_pub_exercicio1" {
+  vpc_id = "vpc-05494f4a277289424"
+  cidr_block = "10.0.1.0/24"
+
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name: "subnet_pub",
+  }
+}
+
+resource "aws_vpc" "vpc_terraform" {
+  cidr_block = "10.0.0.0/16"
+  tags = {
+    Name = "vpc_terraform"
+  } 
 }
