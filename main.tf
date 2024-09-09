@@ -36,7 +36,7 @@ resource "aws_instance" "ec2-iac-aula2" { // bloco de armazenamento (disco)
   // subnet_id = "subnet-04d21f6c9df0a7836" // subnet padrão da região us-east-1
 
   // caso queira indicar uma subnet criada em arquivos .tf (usar esse no projeto)
-  subnet_id = aws_subnet.minha_subrede.is
+  subnet_id = aws_subnet.minha_subrede.id
 }
 
 variable "porta_http" {
